@@ -1,0 +1,48 @@
+tasks:
+  installDeps:
+    name: Install dependencies
+    description: Install workspace dependencies with npm.
+    command: |
+      npm install
+    triggeredBy:
+      - postDevcontainerStart
+
+  build:
+    name: Build
+    description: Build all apps and packages with Turborepo.
+    command: |
+      npm run build
+    triggeredBy:
+      - manual
+    dependsOn:
+      - installDeps
+
+  lint:
+    name: Lint
+    description: Lint all apps and packages with Turborepo.
+    command: |
+      npm run lint
+    triggeredBy:
+      - manual
+    dependsOn:
+      - installDeps
+
+  checkTypes:
+    name: Check types
+    description: Run TypeScript type checks across the monorepo.
+    command: |
+      npm run check-types
+    triggeredBy:
+      - manual
+    dependsOn:
+      - installDeps
+
+services:
+  dev:
+    name: Dev servers
+    description: Run the web (3000) and docs (3001) Next.js dev servers via Turborepo.
+    commands:
+      start: |
+        npm run dev
+      ready: |
+        curl -sf http://localhost:3000
