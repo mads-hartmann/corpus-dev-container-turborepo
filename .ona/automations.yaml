@@ -1,0 +1,39 @@
+tasks:
+  installDeps:
+    name: Install dependencies
+    description: Install npm workspace dependencies for the Turborepo monorepo.
+    command: |
+      npm install
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+
+  build:
+    name: Build
+    description: Build all apps and packages with Turborepo.
+    command: |
+      npm run build
+    dependsOn:
+      - installDeps
+    triggeredBy:
+      - manual
+
+services:
+  web:
+    name: web dev server
+    description: Next.js dev server for the web app on port 3000.
+    commands:
+      start: |
+        npm run dev --workspace=web
+      ready: |
+        curl -sf http://localhost:3000 > /dev/null
+
+  docs:
+    name: docs dev server
+    description: Next.js dev server for the docs app on port 3001.
+    commands:
+      start: |
+        npm run dev --workspace=docs
+      ready: |
+        curl -sf http://localhost:3001 > /dev/null
