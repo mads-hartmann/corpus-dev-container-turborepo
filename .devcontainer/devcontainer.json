@@ -1,0 +1,15 @@
+{
+	"name": "corpus-dev-container-turborepo",
+	"image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+	"forwardPorts": [3000, 3001],
+	"portsAttributes": {
+		"3000": {
+			"label": "web",
+			"onAutoForward": "notify"
+		},
+		"3001": {
+			"label": "docs",
+			"onAutoForward": "notify"
+		}
+	}
+}
