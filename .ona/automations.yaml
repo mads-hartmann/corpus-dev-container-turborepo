@@ -1,0 +1,43 @@
+tasks:
+  install-dependencies:
+    name: Install dependencies
+    description: Install the npm workspace dependencies from the lockfile.
+    command: npm ci
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+
+  build:
+    name: Build
+    description: Build every application and package in the Turborepo workspace.
+    command: npm run build
+    triggeredBy:
+      - manual
+    dependsOn:
+      - install-dependencies
+
+services:
+  web:
+    name: Web
+    description: Run the web application development server.
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+    commands:
+      start: |
+        ona environment port open 3000 --admission creator_only --name "Web"
+        npm --workspace web run dev -- --hostname 0.0.0.0
+      ready: curl -fsS http://localhost:3000
+
+  docs:
+    name: Docs
+    description: Run the documentation application development server.
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+    commands:
+      start: |
+        ona environment port open 3001 --admission creator_only --name "Docs"
+        npm --workspace docs run dev -- --hostname 0.0.0.0
+      ready: curl -fsS http://localhost:3001
