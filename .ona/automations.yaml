@@ -1,9 +1,8 @@
 tasks:
   installDeps:
     name: Install dependencies
-    description: Install npm workspace dependencies for the Turborepo.
-    command: |
-      npm install
+    description: Install the locked npm workspace dependencies.
+    command: npm ci
     triggeredBy:
       - manual
       - postDevcontainerStart
@@ -11,9 +10,8 @@ tasks:
 
   build:
     name: Build
-    description: Build all apps and packages with Turborepo.
-    command: |
-      npm run build
+    description: Build all Turborepo apps and packages.
+    command: npm run build
     triggeredBy:
       - manual
     dependsOn:
@@ -22,26 +20,24 @@ tasks:
 services:
   web:
     name: Web
-    description: Next.js dev server for the web app.
+    description: Run the web Next.js development server.
     triggeredBy:
       - manual
       - postEnvironmentStart
     commands:
       start: |
-        ona environment port open 3000 --dont-wait --admission creator_only --name "Web"
-        npm run dev --workspace=web -- --hostname 0.0.0.0
-      ready: |
-        curl -sf http://localhost:3000
+        ona environment port open 3000 --admission creator_only --name "Web"
+        npm run dev --workspace web -- --hostname 0.0.0.0
+      ready: curl -f http://localhost:3000
 
   docs:
     name: Docs
-    description: Next.js dev server for the docs app.
+    description: Run the docs Next.js development server.
     triggeredBy:
       - manual
       - postEnvironmentStart
     commands:
       start: |
-        ona environment port open 3001 --dont-wait --admission creator_only --name "Docs"
-        npm run dev --workspace=docs -- --hostname 0.0.0.0
-      ready: |
-        curl -sf http://localhost:3001
+        ona environment port open 3001 --admission creator_only --name "Docs"
+        npm run dev --workspace docs -- --hostname 0.0.0.0
+      ready: curl -f http://localhost:3001
