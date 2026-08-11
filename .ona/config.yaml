@@ -1,0 +1,43 @@
+tasks:
+  installDeps:
+    name: Install dependencies
+    description: Install the monorepo dependencies from the lockfile.
+    command: npm ci
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+
+  build:
+    name: Build
+    description: Build all Turborepo applications and packages.
+    command: npm run build
+    triggeredBy:
+      - manual
+    dependsOn:
+      - installDeps
+
+services:
+  web:
+    name: Web app
+    description: Run the web Next.js development server.
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+    commands:
+      start: |
+        ona environment port open 3000 --admission creator_only --name "Web app"
+        npm run dev --workspace web -- --hostname 0.0.0.0
+      ready: curl -fsS http://localhost:3000
+
+  docs:
+    name: Docs app
+    description: Run the docs Next.js development server.
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+    commands:
+      start: |
+        ona environment port open 3001 --admission creator_only --name "Docs app"
+        npm run dev --workspace docs -- --hostname 0.0.0.0
+      ready: curl -fsS http://localhost:3001
