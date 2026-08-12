@@ -1,0 +1,41 @@
+services:
+  web:
+    name: Web app
+    description: Next.js development server for the web app
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+    commands:
+      start: |
+        ona environment port open 3000 --admission creator_only --name "Web app"
+        npm run dev --workspace=web -- --hostname 0.0.0.0
+      ready: curl -fsS http://localhost:3000
+
+  docs:
+    name: Docs app
+    description: Next.js development server for the docs app
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+    commands:
+      start: |
+        ona environment port open 3001 --admission creator_only --name "Docs app"
+        npm run dev --workspace=docs -- --hostname 0.0.0.0
+      ready: curl -fsS http://localhost:3001
+
+tasks:
+  install-dependencies:
+    name: Install dependencies
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+    command: npm ci
+
+  build:
+    name: Build all apps and packages
+    triggeredBy:
+      - manual
+    dependsOn:
+      - install-dependencies
+    command: npm run build
