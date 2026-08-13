@@ -1,0 +1,37 @@
+tasks:
+  install:
+    name: Install dependencies
+    command: npm ci
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+  build:
+    name: Build workspace
+    command: npm run build
+    dependsOn:
+      - install
+    triggeredBy:
+      - manual
+
+services:
+  web:
+    name: Web app
+    commands:
+      start: |
+        ona environment port open 3000 --admission creator_only --name "Web app"
+        npm run dev --workspace=web -- --hostname 0.0.0.0
+      ready: curl -fsS http://localhost:3000
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+  docs:
+    name: Docs app
+    commands:
+      start: |
+        ona environment port open 3001 --admission creator_only --name "Docs app"
+        npm run dev --workspace=docs -- --hostname 0.0.0.0
+      ready: curl -fsS http://localhost:3001
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
