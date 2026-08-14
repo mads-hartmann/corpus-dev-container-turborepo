@@ -1,0 +1,51 @@
+tasks:
+  install-dependencies:
+    name: Install dependencies
+    description: Install the pinned npm workspace dependencies
+    command: npm ci
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+
+  build:
+    name: Build all packages and apps
+    description: Build the Turborepo workspace
+    command: npm run build
+    dependsOn:
+      - install-dependencies
+    triggeredBy:
+      - manual
+
+services:
+  web:
+    name: Web development server
+    description: Next.js development server for the web app
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - postEnvironmentStart
+    commands:
+      start: |
+        ona environment port open 3000 --admission creator_only --name "Web development server"
+        export ONA_EXPOSED_HOST="$(ona environment port get 3000 -f URL | cut -c 9-)"
+        npm run dev --workspace web -- --hostname 0.0.0.0
+      ready: |
+        export ONA_EXPOSED_HOST="$(ona environment port get 3000 -f URL | cut -c 9-)"
+        curl -fsS -H "Host: ${ONA_EXPOSED_HOST}" http://localhost:3000/ >/dev/null
+
+  docs:
+    name: Docs development server
+    description: Next.js development server for the docs app
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - postEnvironmentStart
+    commands:
+      start: |
+        ona environment port open 3001 --admission creator_only --name "Docs development server"
+        export ONA_EXPOSED_HOST="$(ona environment port get 3001 -f URL | cut -c 9-)"
+        npm run dev --workspace docs -- --hostname 0.0.0.0
+      ready: |
+        export ONA_EXPOSED_HOST="$(ona environment port get 3001 -f URL | cut -c 9-)"
+        curl -fsS -H "Host: ${ONA_EXPOSED_HOST}" http://localhost:3001/ >/dev/null
