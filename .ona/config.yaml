@@ -1,0 +1,42 @@
+tasks:
+  install-dependencies:
+    name: Install dependencies
+    command: npm ci
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+    prebuildRequiresSuccess: true
+
+  build:
+    name: Build
+    command: npm run build
+    dependsOn:
+      - install-dependencies
+    triggeredBy:
+      - manual
+
+services:
+  web:
+    name: Web
+    commands:
+      start: |
+        ona environment port open 3000 --admission creator_only --name "Web"
+        until [ -x node_modules/.bin/next ]; do sleep 1; done
+        npm run dev --workspace=web -- --hostname 0.0.0.0
+      ready: curl -fsS http://localhost:3000
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+
+  docs:
+    name: Docs
+    commands:
+      start: |
+        ona environment port open 3001 --admission creator_only --name "Docs"
+        until [ -x node_modules/.bin/next ]; do sleep 1; done
+        npm run dev --workspace=docs -- --hostname 0.0.0.0
+      ready: curl -fsS http://localhost:3001
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
